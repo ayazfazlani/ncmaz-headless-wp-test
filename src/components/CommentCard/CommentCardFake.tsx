@@ -6,13 +6,13 @@ import Link from "next/link";
 import { getImageDataFromImageFragment } from "@/utils/getImageDataFromImageFragment";
 import ncFormatDate from "@/utils/formatDate";
 import { TComment } from "./CommentCard";
-import SingleCommentForm from "@/container/singles/SingleCommentForm";
+import SingleCommentForm, { CommentFormData } from "@/container/singles/SingleCommentForm";
 
 export interface CommentCardFakeProps {
   className?: string;
   comment: TComment;
   size?: "large" | "normal";
-  handleSubmitFormReply: (data: { comment: TComment; data: string }) => void;
+  handleSubmitFormReply: (data: { comment: TComment; data: CommentFormData }) => void;
   handleCancelFormReply: () => void;
 }
 

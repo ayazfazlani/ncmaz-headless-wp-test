@@ -44,11 +44,11 @@ const PostCardLikeAndComment: FC<PostCardLikeAndCommentProps> = ({
     <div
       className={`nc-PostCardLikeAndComment flex items-center gap-2 sm:gap-2.5 ${className}`}
     >
-      <PostCardLikeAction
+      {/* <PostCardLikeAction
         className={itemClass}
         likeCount={likeCount}
         postDatabseId={postDatabseId}
-      />
+      /> */}
       {showCommentCount && (
         <PostCardCommentBtn
           className={`${

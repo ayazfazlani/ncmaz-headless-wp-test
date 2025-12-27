@@ -39,12 +39,11 @@ Page.variables = ({ params }) => {
     id: params?.slug,
     first: GET_POSTS_FIRST_COMMON,
     headerLocation: PRIMARY_LOCATION,
-    footerLocation: FOOTER_LOCATION,
   };
 };
 
 Page.query = gql(`
-  query GetAuthorWithPosts($id: ID!, $first: Int, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+  query GetAuthorWithPosts($id: ID!, $first: Int, $headerLocation: MenuLocationEnum!) {
     user(id: $id, idType: SLUG) {
       ...NcmazFcUserFullFields
       posts(first:  $first, where: {orderby: {field: DATE, order: DESC}}) {
@@ -71,9 +70,11 @@ Page.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 50) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
     # end common query for all page

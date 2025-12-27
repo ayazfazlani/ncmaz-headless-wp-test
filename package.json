@@ -3,10 +3,11 @@
   "private": true,
   "version": "2.0.0",
   "scripts": {
-    "dev": "npm run generate && concurrently \"faust dev\" \"npm run watch-codegen\"",
-    "build": "faust build",
+    "dev": "node init && npm run generate && concurrently \"next dev\" \"npm run watch-codegen\"",
+    "dev:next": "node init && npm run generate && concurrently \"next dev\" \"npm run watch-codegen\"",
+    "build": "node init && faust build",
     "generate": "faust generatePossibleTypes",
-    "start": "faust start",
+    "start": "node init && faust start",
     "codegen": "graphql-codegen",
     "watch-codegen": "graphql-codegen -w",
     "wc": "graphql-codegen -w",
@@ -63,6 +64,7 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
+    "@parcel/watcher": "^2.5.1",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.39",

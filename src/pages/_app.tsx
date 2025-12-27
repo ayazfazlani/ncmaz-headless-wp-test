@@ -10,7 +10,7 @@ import blocks from "@/wp-blocks";
 import { Poppins } from "next/font/google";
 import SiteWrapperProvider from "@/container/SiteWrapperProvider";
 import { Toaster } from "react-hot-toast";
-import NextNProgress from "nextjs-progressbar";
+// import NextNProgress from "nextjs-progressbar";
 import themeJson from "../../theme.json";
 
 const poppins = Poppins({
@@ -36,7 +36,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
               font-family: ${poppins.style.fontFamily};
             }
           `}</style>
-          <NextNProgress color="#818cf8" />
+          {/* <NextNProgress color="#818cf8" /> */}
           <Component {...pageProps} key={router.asPath} />
           <Toaster
             position="bottom-left"

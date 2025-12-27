@@ -48,7 +48,11 @@ const Page: FaustPage<SearchPageQueryGetPostsBySearchQuery> = (props) => {
     <>
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={null}
         pageTitle={"Search"}
         generalSettings={
@@ -89,12 +93,11 @@ Page.variables = ({ params }) => {
     search: params?.search?.[0] || null,
     first: GET_POSTS_FIRST_COMMON,
     headerLocation: PRIMARY_LOCATION,
-    footerLocation: FOOTER_LOCATION,
   };
 };
 
 Page.query = gql(`
-  query SearchPageQueryGetPostsBySearch( $first: Int,  $search: String, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+  query SearchPageQueryGetPostsBySearch( $first: Int,  $search: String, $headerLocation: MenuLocationEnum!) {
     posts(first: $first, where: {search: $search}) {
         nodes {
           ...NcmazFcPostCardFields
@@ -118,9 +121,11 @@ Page.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 50) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
     # end common query

@@ -81,7 +81,7 @@
   ],
 
   "site_footer": {
-    "all_rights_reserved_text": "© 2023 ChisNghiax Company, Inc. All rights reserved."
+   "all_rights_reserved_text": "© {year} {company_name}, All rights reserved."
   },
 
   "single_page": {

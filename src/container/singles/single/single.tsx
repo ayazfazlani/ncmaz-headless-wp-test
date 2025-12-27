@@ -28,7 +28,7 @@ const SingleType1: FC<SingleType1Props> = ({ post, showRightSidebar }) => {
                 : `max-w-screen-md mx-auto`
             }
           >
-            <SingleHeader post={{ ...post }} />
+            <SingleHeader post={{ ...post }} hiddenDesc={true} />
             {!hasFeaturedImage && (
               <div className="my-5 border-b border-neutral-200 dark:border-neutral-800" />
             )}

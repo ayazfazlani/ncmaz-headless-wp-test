@@ -89,7 +89,11 @@ const AuthorSaveChild: FaustPage<PageAuthorBookmarksGetDataQuery> = (props) => {
     <>
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={
           getImageDataFromImageFragment(ncUserMeta?.featuredImage?.node)
             ?.sourceUrl || null

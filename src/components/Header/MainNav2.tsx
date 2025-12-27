@@ -2,15 +2,14 @@
 
 import React, { FC } from "react";
 import AvatarDropdown from "./AvatarDropdown";
-import SwitchDarkMode from "../SwitchDarkMode/SwitchDarkMode";
 import Input from "../Input/Input";
 import Navigation from "../Navigation/Navigation";
 import { MainNav1Props } from "./MainNav1";
 import Brand from "./Brand";
 import { useRouter } from "next/router";
-import CreateBtn from "./CreateBtn";
 import dynamic from "next/dynamic";
 import getTrans from "@/utils/getTrans";
+
 
 const DynamicMenuBar = dynamic(() => import("@/components/MenuBar/MenuBar"), {
   ssr: false,
@@ -96,9 +95,7 @@ const MainNav2: FC<MainNav2Props> = ({ menuItems, description, title }) => {
               className="hidden lg:flex"
             />
             <div className="hidden md:block border-l border-neutral-200 dark:border-neutral-700 self-center h-8 mx-2"></div>
-            <CreateBtn className="self-center" />
-            <SwitchDarkMode className="self-center" />
-            <AvatarDropdown className="self-center" />
+            {/* <AvatarDropdown className="self-center" /> */}
           </div>
         </div>
       </div>

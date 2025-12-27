@@ -5,6 +5,7 @@ import CommentCard, {
 } from "@/components/CommentCard/CommentCard";
 import CommentCardSkeleton from "@/components/CommentCard/CommentCardSkeleton";
 import CommentCardFake from "@/components/CommentCard/CommentCardFake";
+import { CommentFormData } from "./SingleCommentForm";
 import getTrans from "@/utils/getTrans";
 
 export interface SingleCommentListsProps {
@@ -18,7 +19,7 @@ export interface SingleCommentListsProps {
   onClickDelete?: (comment: TCommentHasChild) => void;
   onSubmitFormReply: (data: {
     comment: TCommentHasChild;
-    data: string;
+    data: CommentFormData;
   }) => void;
   onCancelFormReply: () => void;
 }

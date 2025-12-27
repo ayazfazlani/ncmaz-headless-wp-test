@@ -20,7 +20,11 @@ const Page: FaustPage<GetReadingListPageQuery> = (props) => {
     <>
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={null}
         pageTitle={T["Reading list"]}
         generalSettings={
@@ -46,13 +50,12 @@ const Page: FaustPage<GetReadingListPageQuery> = (props) => {
 Page.variables = () => {
   return {
     headerLocation: PRIMARY_LOCATION,
-    footerLocation: FOOTER_LOCATION,
   };
 };
 
 // Note***: tat ca cac query trong cac page deu phai co generalSettings, no duoc su dung o compoent Wrap
 Page.query = gql(`
-  query GetReadingListPage($headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+  query GetReadingListPage($headerLocation: MenuLocationEnum!) {
     # common query for all page 
     generalSettings {
       ...NcgeneralSettingsFieldsFragment
@@ -62,9 +65,11 @@ Page.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 50) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
   }

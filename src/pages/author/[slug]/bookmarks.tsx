@@ -32,12 +32,11 @@ Page.variables = ({ params }) => {
   return {
     id: params?.slug,
     headerLocation: PRIMARY_LOCATION,
-    footerLocation: FOOTER_LOCATION,
   };
 };
 
 Page.query = gql(`
-  query PageAuthorBookmarksGetData($id: ID!, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+  query PageAuthorBookmarksGetData($id: ID!, $headerLocation: MenuLocationEnum!) {
     user(id: $id, idType: SLUG) {
       ...NcmazFcUserFullFields
     }
@@ -55,9 +54,11 @@ Page.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 50) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
     # end common query for all page

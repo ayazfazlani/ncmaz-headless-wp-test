@@ -10,7 +10,7 @@ import {
 import { updateGeneralSettings } from "@/stores/general-settings/generalSettingsSlice";
 import useInitGetAndUpdateViewerReactionPosts from "@/hooks/useInitGetAndUpdateViewerReactionPosts";
 import { GET_SITE_VIEWER } from "@/fragments/queries";
-import ControlSettingsDemo from "./ControlSettingsDemo";
+// import ControlSettingsDemo from "./ControlSettingsDemo";
 import CookiestBoxPopover from "@/components/CookiestBoxPopover";
 import errorHandling from "@/utils/errorHandling";
 import MusicPlayer from "@/components/MusicPlayer/MusicPlayer";
@@ -95,7 +95,6 @@ export function SiteWrapperChild({
   return (
     <div>
       <CookiestBoxPopover />
-      <ControlSettingsDemo />
       <MusicPlayer />
     </div>
   );

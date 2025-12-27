@@ -4,7 +4,7 @@ import React, { FC, Fragment, useEffect, useRef, useState } from "react";
 import Tag from "@/components/Tag/Tag";
 import SingleAuthor from "./SingleAuthor";
 import useIntersectionObserver from "@/hooks/useIntersectionObserver";
-import PostCardLikeAction from "@/components/PostCardLikeAction/PostCardLikeAction";
+// import PostCardLikeAction from "@/components/PostCardLikeAction/PostCardLikeAction";
 import PostCardCommentBtn from "@/components/PostCardCommentBtn/PostCardCommentBtn";
 import { ArrowUpIcon } from "@heroicons/react/24/solid";
 import { GetPostSiglePageQuery } from "@/__generated__/graphql";
@@ -173,10 +173,10 @@ const SingleContent: FC<SingleContentProps> = ({ post }) => {
       >
         <div className="inline-flex self-center gap-1 sm:gap-2 sticky mt-8 bottom-5 sm:bottom-8 z-40 justify-center items-center">
           <div className="bg-white dark:bg-neutral-800 shadow-lg rounded-full ring-1 ring-offset-1 ring-neutral-900/5 p-1.5 flex items-center justify-center gap-1 sm:gap-2 text-xs">
-            <PostCardLikeAction
+            {/* <PostCardLikeAction
               likeCount={ncPostMetaData?.likesCount || 0}
               postDatabseId={databaseId}
-            />
+            /> */}
             <div className="border-s h-4 border-neutral-200 dark:border-neutral-700"></div>
             <PostCardCommentBtn
               isATagOnSingle

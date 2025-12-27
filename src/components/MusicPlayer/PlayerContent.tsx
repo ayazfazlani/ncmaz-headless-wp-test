@@ -5,7 +5,7 @@ import NcImage from "@/components/NcImage/NcImage";
 import { Transition } from "@/app/headlessui";
 import { useMusicPlayer } from "@/hooks/useMusicPlayer";
 import Link from "next/link";
-import PostCardLikeAction from "../PostCardLikeAction/PostCardLikeAction";
+// import PostCardLikeAction from "../PostCardLikeAction/PostCardLikeAction";
 import NcBookmark from "../NcBookmark/NcBookmark";
 import {
   EllipsisHorizontalIcon,
@@ -141,10 +141,10 @@ const PlayerContent: FC<PlayerContentProps> = ({
           </div>
         </Link>
         <div className="hidden xl:flex flex-shrink-0 px-6 space-x-2.5 rtl:space-x-reverse">
-          <PostCardLikeAction
+          {/* <PostCardLikeAction
             likeCount={ncPostMetaData?.likesCount || 0}
             postDatabseId={databaseId || 0}
-          />
+          /> */}
           <NcBookmark postDatabseId={databaseId} />
         </div>
       </div>

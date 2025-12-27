@@ -31,7 +31,11 @@ const Archive: FaustTemplate<PageArchiveGetArchiveQuery> = (props) => {
     return (
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={null}
         pageTitle={props.data.nodeByUri.__typename}
         generalSettings={
@@ -63,7 +67,11 @@ const Archive: FaustTemplate<PageArchiveGetArchiveQuery> = (props) => {
     <>
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={null}
         pageTitle={"Archive " + name}
         pageDescription={description || ""}
@@ -124,11 +132,10 @@ Archive.variables = ({ uri }) => ({
   uri,
   first: GET_POSTS_FIRST_COMMON,
   headerLocation: PRIMARY_LOCATION,
-  footerLocation: FOOTER_LOCATION,
 });
 
 Archive.query = gql(`
- query PageArchiveGetArchive($uri: String! = "", $first: Int, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+ query PageArchiveGetArchive($uri: String! = "", $first: Int, $headerLocation: MenuLocationEnum!) {
   nodeByUri(uri: $uri) {
       uri
       id
@@ -159,9 +166,11 @@ Archive.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 50) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
     # end common query for all page

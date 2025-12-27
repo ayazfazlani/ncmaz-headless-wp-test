@@ -35,7 +35,11 @@ const Tag: FaustTemplate<PageTagGetTagQuery> = (props) => {
     <>
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={props.data?.pages?.nodes?.map(node => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={null}
         pageTitle={"Tag " + name}
         pageDescription={description || ""}
@@ -96,11 +100,10 @@ Tag.variables = ({ id }) => ({
   id,
   first: GET_POSTS_FIRST_COMMON,
   headerLocation: PRIMARY_LOCATION,
-  footerLocation: FOOTER_LOCATION,
 });
 
 Tag.query = gql(`
- query PageTagGetTag($id: ID!, $first: Int, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+ query PageTagGetTag($id: ID!, $first: Int, $headerLocation: MenuLocationEnum!) {
     tag(id: $id) {
        ...NcmazFcTagFullFieldsFragment
       
@@ -128,9 +131,11 @@ Tag.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 50) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
     # end common query for all page

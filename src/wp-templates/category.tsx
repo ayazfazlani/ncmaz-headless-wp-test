@@ -43,7 +43,11 @@ const Category: FaustTemplate<PageCategoryGetCategoryQuery> = (props) => {
   return (
     <PageLayout
       headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-      footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
       pageFeaturedImageUrl={featuredImageMeta?.sourceUrl}
       pageTitle={"Category " + name}
       pageDescription={description || ""}
@@ -123,11 +127,10 @@ Category.variables = ({ id }) => ({
   id,
   first: GET_POSTS_FIRST_COMMON,
   headerLocation: PRIMARY_LOCATION,
-  footerLocation: FOOTER_LOCATION,
 });
 
 Category.query = gql(`
-query PageCategoryGetCategory($id: ID!, $first: Int, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!)  {
+query PageCategoryGetCategory($id: ID!, $first: Int, $headerLocation: MenuLocationEnum!)  {
     category(id: $id) {
        ...NcmazFcCategoryFullFieldsFragment
       posts(first: $first, where: {orderby: {field: DATE, order: DESC}}) {
@@ -154,9 +157,11 @@ query PageCategoryGetCategory($id: ID!, $first: Int, $headerLocation: MenuLocati
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: { location:  $footerLocation  }, first: 40) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
  }`);

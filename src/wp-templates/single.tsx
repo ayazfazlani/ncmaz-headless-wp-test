@@ -9,7 +9,7 @@ import { FaustTemplate } from "@faustwp/core";
 import SingleContent from "@/container/singles/SingleContent";
 import SingleType1 from "@/container/singles/single/single";
 import { getPostDataFromPostFragment } from "@/utils/getPostDataFromPostFragment";
-import { Sidebar } from "@/container/singles/Sidebar";
+// import { Sidebar } from "@/container/singles/Sidebar";
 import PageLayout from "@/container/PageLayout";
 import { FOOTER_LOCATION, PRIMARY_LOCATION } from "@/contains/menu";
 import dynamic from "next/dynamic";
@@ -178,7 +178,11 @@ const Component: FaustTemplate<GetPostSiglePageQuery> = (props) => {
     <>
       <PageLayout
         headerMenuItems={props.data?.primaryMenuItems?.nodes || []}
-        footerMenuItems={props.data?.footerMenuItems?.nodes || []}
+        footerPages={(props.data as any)?.pages?.nodes?.map((node: any) => ({
+          title: node.title || null,
+          uri: node.uri || null,
+          databaseId: node.databaseId || 0,
+        })) || []}
         pageFeaturedImageUrl={featuredImage?.sourceUrl}
         pageTitle={title}
         pageDescription={excerpt || ""}
@@ -192,12 +196,12 @@ const Component: FaustTemplate<GetPostSiglePageQuery> = (props) => {
               {renderHeaderType()}
 
               <div className="container flex flex-col my-10 lg:flex-row ">
-                <div className="w-full lg:w-3/5 xl:w-2/3 xl:pe-20">
+                <div className="w-full mx-auto lg:w-3/5 xl:w-2/3 xl:pe-20">
                   <SingleContent post={_post} />
                 </div>
-                <div className="w-full mt-12 lg:mt-0 lg:w-2/5 lg:ps-10 xl:ps-0 xl:w-1/3">
+                {/* <div className="w-full mt-12 lg:mt-0 lg:w-2/5 lg:ps-10 xl:ps-0 xl:w-1/3">
                   <Sidebar categories={_top10Categories} />
-                </div>
+                </div> */}
               </div>
 
               {/* RELATED POSTS */}
@@ -234,12 +238,11 @@ Component.variables = ({ databaseId }, ctx) => {
     post_databaseId: Number(databaseId || 0),
     asPreview: ctx?.asPreview,
     headerLocation: PRIMARY_LOCATION,
-    footerLocation: FOOTER_LOCATION,
   };
 };
 
 Component.query = gql(`
-  query GetPostSiglePage($databaseId: ID!, $post_databaseId: Int,$asPreview: Boolean = false, $headerLocation: MenuLocationEnum!, $footerLocation: MenuLocationEnum!) {
+  query GetPostSiglePage($databaseId: ID!, $post_databaseId: Int,$asPreview: Boolean = false, $headerLocation: MenuLocationEnum!) {
     post(id: $databaseId, idType: DATABASE_ID, asPreview: $asPreview) {
     ...NcmazFcPostFullFields
     }
@@ -261,9 +264,11 @@ Component.query = gql(`
         ...NcPrimaryMenuFieldsFragment
       }
     }
-    footerMenuItems: menuItems(where: {location:$footerLocation}, first: 40) {
+    pages(first: 100, where: { orderby: { field: MENU_ORDER, order: ASC } }) {
       nodes {
-        ...NcFooterMenuFieldsFragment
+        title
+        uri
+        databaseId
       }
     }
   }

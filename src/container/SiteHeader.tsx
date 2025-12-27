@@ -17,7 +17,7 @@ const SiteHeader: FC<Props> = ({ menuItems, siteDescription, siteTitle }) => {
   //
   return (
     <>
-      <Banner />
+      {/* <Banner /> */}
 
       <div className="sticky top-0 w-full z-30">
         <MainNav2

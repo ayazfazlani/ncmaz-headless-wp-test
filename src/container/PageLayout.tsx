@@ -4,16 +4,21 @@ import SiteHeader from "./SiteHeader";
 import Footer from "@/components/Footer/Footer";
 import { FragmentType } from "@/__generated__";
 import {
-  NC_FOOTER_MENU_QUERY_FRAGMENT,
   NC_PRIMARY_MENU_QUERY_FRAGMENT,
 } from "@/fragments/menu";
 import { NcgeneralSettingsFieldsFragmentFragment } from "@/__generated__/graphql";
+
+interface Page {
+  title: string | null;
+  uri: string | null;
+  databaseId: number;
+}
 
 interface Props {
   children: React.ReactNode;
   pageTitle?: string | null | undefined;
   headerMenuItems?: FragmentType<typeof NC_PRIMARY_MENU_QUERY_FRAGMENT>[];
-  footerMenuItems?: FragmentType<typeof NC_FOOTER_MENU_QUERY_FRAGMENT>[] | null;
+  footerPages?: Page[] | null;
   pageFeaturedImageUrl?: string | null | undefined;
   generalSettings?: NcgeneralSettingsFieldsFragmentFragment | null | undefined;
   pageDescription?: string | null | undefined;
@@ -21,7 +26,7 @@ interface Props {
 
 const PageLayout: FC<Props> = ({
   children,
-  footerMenuItems,
+  footerPages,
   headerMenuItems,
   pageFeaturedImageUrl,
   pageTitle,
@@ -44,7 +49,7 @@ const PageLayout: FC<Props> = ({
 
       {children}
 
-      <Footer menuItems={footerMenuItems || []} />
+      <Footer pages={footerPages || []} />
     </>
   );
 };

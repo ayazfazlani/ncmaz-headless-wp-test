@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import SingleCommentLists from "./SingleCommentLists";
-import SingleCommentForm from "./SingleCommentForm";
+import SingleCommentForm, { CommentFormData } from "./SingleCommentForm";
 import ModalDeleteComment from "./ModalDeleteComment";
 import ModalEditComment from "./ModalEditComment";
 import { flatListToHierarchical, getApolloAuthClient } from "@faustwp/core";
@@ -134,12 +134,42 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
     {
       client,
       notifyOnNetworkStatusChange: true,
+      onError: (error) => {
+        console.error("Error creating comment:", error);
+        const errorMessage = error.networkError 
+          ? `Network error: ${error.networkError.message || 'Please check your WordPress URL and GraphQL endpoint'}`
+          : error.message || "Failed to submit comment. Please try again.";
+        toast.error(errorMessage);
+        
+        // Log full error for debugging
+        if (error.networkError) {
+          console.error("Network error details:", error.networkError);
+        }
+        if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+          console.error("GraphQL errors:", error.graphQLErrors);
+        }
+      },
     }
   );
   const [mutaionCreateNewReplyComments, createNewReplyCommentsResult] =
     useMutation(QUERY_MUTATION_CREATE_COMMENT, {
       client,
       notifyOnNetworkStatusChange: true,
+      onError: (error) => {
+        console.error("Error creating reply:", error);
+        const errorMessage = error.networkError 
+          ? `Network error: ${error.networkError.message || 'Please check your WordPress URL and GraphQL endpoint'}`
+          : error.message || "Failed to submit reply. Please try again.";
+        toast.error(errorMessage);
+        
+        // Log full error for debugging
+        if (error.networkError) {
+          console.error("Network error details:", error.networkError);
+        }
+        if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+          console.error("GraphQL errors:", error.graphQLErrors);
+        }
+      },
     });
   const [mutaionUpdateCommentById, updateCommentByIdResult] = useMutation(
     QUERY_MUTATION_UPDATE_COMMENT_BY_ID,
@@ -222,27 +252,52 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
 
     if (createNewCommentsResult.data) {
       toast.dismiss();
-      toast.success("Create comment successfully");
       const newCreated = createNewCommentsResult.data?.createComment
-        ?.comment as TCommentHasChild;
-      if (
-        !listNewCommentCreated.some(
-          (c) => c.databaseId === newCreated.databaseId
-        )
-      ) {
-        setListNewCommentCreated([...listNewCommentCreated, newCreated]);
-        setTimeout(() => {
-          const newNode = document.getElementById(
-            `comment-${newCreated.databaseId}`
-          );
-          newNode?.scrollIntoView({
-            behavior: "auto",
-            block: "nearest",
+        ?.comment as TCommentHasChild | null | undefined;
+      const success = createNewCommentsResult.data?.createComment?.success;
+      
+      if (success && newCreated && newCreated.databaseId) {
+        // Comment was approved and returned immediately
+        const commentStatus = newCreated.status;
+        if (commentStatus === CommentStatusEnum.Approve) {
+          toast.success("Your comment has been posted successfully!", {
+            duration: 4000,
+            icon: "✅",
           });
-          (
-            newNode?.querySelector(".nc-CommentCard__box") as HTMLElement | null
-          )?.classList.add("ring", "ring-inset");
-        }, 500);
+        } else {
+          toast.success("Your comment is awaiting approval. It will be displayed once approved.", {
+            duration: 5000,
+            icon: "⏳",
+          });
+        }
+        
+        if (
+          !listNewCommentCreated.some(
+            (c) => c?.databaseId === newCreated.databaseId
+          )
+        ) {
+          setListNewCommentCreated([...listNewCommentCreated, newCreated]);
+          setTimeout(() => {
+            const newNode = document.getElementById(
+              `comment-${newCreated.databaseId}`
+            );
+            newNode?.scrollIntoView({
+              behavior: "auto",
+              block: "nearest",
+            });
+            (
+              newNode?.querySelector(".nc-CommentCard__box") as HTMLElement | null
+            )?.classList.add("ring", "ring-inset");
+          }, 500);
+        }
+      } else if (success) {
+        // Comment was created but not returned (pending moderation)
+        toast.success("Your comment has been submitted and is awaiting approval. It will be displayed once approved by the administrator.", {
+          duration: 6000,
+          icon: "⏳",
+        });
+        // Refetch comments to get the updated list
+        refetch();
       }
       createNewCommentsResult.reset();
       return;
@@ -274,27 +329,52 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
 
     if (createNewReplyCommentsResult.data) {
       toast.dismiss();
-      toast.success("Reply comment successfully");
       const newCreated = createNewReplyCommentsResult.data?.createComment
-        ?.comment as TCommentHasChild;
-      if (
-        !listNewCommentCreated.some(
-          (c) => c.databaseId === newCreated.databaseId
-        )
-      ) {
-        setListNewCommentCreated([...listNewCommentCreated, newCreated]);
-        setTimeout(() => {
-          const newNode = document.getElementById(
-            `comment-${newCreated.databaseId}`
-          );
-          newNode?.scrollIntoView({
-            behavior: "auto",
-            block: "nearest",
+        ?.comment as TCommentHasChild | null | undefined;
+      const success = createNewReplyCommentsResult.data?.createComment?.success;
+      
+      if (success && newCreated && newCreated.databaseId) {
+        // Reply was approved and returned immediately
+        const commentStatus = newCreated.status;
+        if (commentStatus === CommentStatusEnum.Approve) {
+          toast.success("Your reply has been posted successfully!", {
+            duration: 4000,
+            icon: "✅",
           });
-          (
-            newNode?.querySelector(".nc-CommentCard__box") as HTMLElement | null
-          )?.classList.add("ring", "ring-inset");
-        }, 500);
+        } else {
+          toast.success("Your reply is awaiting approval. It will be displayed once approved.", {
+            duration: 5000,
+            icon: "⏳",
+          });
+        }
+        
+        if (
+          !listNewCommentCreated.some(
+            (c) => c?.databaseId === newCreated.databaseId
+          )
+        ) {
+          setListNewCommentCreated([...listNewCommentCreated, newCreated]);
+          setTimeout(() => {
+            const newNode = document.getElementById(
+              `comment-${newCreated.databaseId}`
+            );
+            newNode?.scrollIntoView({
+              behavior: "auto",
+              block: "nearest",
+            });
+            (
+              newNode?.querySelector(".nc-CommentCard__box") as HTMLElement | null
+            )?.classList.add("ring", "ring-inset");
+          }, 500);
+        }
+      } else if (success) {
+        // Reply was created but not returned (pending moderation)
+        toast.success("Your reply has been submitted and is awaiting approval. It will be displayed once approved by the administrator.", {
+          duration: 6000,
+          icon: "⏳",
+        });
+        // Refetch comments to get the updated list
+        refetch();
       }
       setIsOpenReplyFormWithId(null);
       createNewReplyCommentsResult.reset();
@@ -377,36 +457,104 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
     });
   };
 
-  const handleSubmitCommentForm = (data: string) => {
-    if (!isAuthenticated || !viewer?.databaseId) {
-      toast.error(T.pageSingle["You must login to comment"]);
+  const handleSubmitCommentForm = (formData: CommentFormData) => {
+    // For authenticated users, use viewer data if not provided
+    const author = formData.author || viewer?.name || "";
+    
+    // Validate required fields
+    if (!formData.content.trim()) {
+      toast.error("Please enter a comment");
+      return;
+    }
+
+    if (!isAuthenticated) {
+      // Guest comment validation - only name required
+      if (!author.trim()) {
+        toast.error("Please enter your name");
+        return;
+      }
+    }
+
+    // WordPress requires email for guest comments, so generate a valid placeholder
+    // This email is only used internally by WordPress and won't be displayed
+    const guestEmail = !isAuthenticated && !formData.authorEmail
+      ? `${author.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'guest'}@example.com`
+      : formData.authorEmail || viewer?.email || null;
+
+    // Ensure we have valid values
+    if (!postDatabaseId) {
+      toast.error("Invalid post. Cannot submit comment.");
       return;
     }
 
     mutaionCreateNewComments({
       variables: {
-        content: data,
+        content: formData.content.trim(),
         commentOn: postDatabaseId,
+        author: author.trim() || null,
+        authorEmail: guestEmail,
+        authorUrl: null,
+      },
+      context: {
+        fetchOptions: {
+          method: "POST",
+        },
       },
     });
   };
 
   const handleSubmitFormReply = (data: {
     comment: TCommentHasChild;
-    data: string;
+    data: CommentFormData;
   }) => {
-    if (!isAuthenticated || !viewer?.databaseId) {
-      toast.error(T.pageSingle["You must login to comment"]);
+    if (!data.comment.parentDatabaseId) {
       return;
     }
-    data.comment.parentDatabaseId &&
-      mutaionCreateNewReplyComments({
-        variables: {
-          content: data.data,
-          commentOn: postDatabaseId,
-          parent: data.comment.parentDatabaseId.toString(),
+
+    // For authenticated users, use viewer data if not provided
+    const author = data.data.author || viewer?.name || "";
+
+    // Validate required fields
+    if (!data.data.content.trim()) {
+      toast.error("Please enter a reply");
+      return;
+    }
+
+    if (!isAuthenticated) {
+      // Guest comment validation - only name required
+      if (!author.trim()) {
+        toast.error("Please enter your name");
+        return;
+      }
+    }
+
+    // WordPress requires email for guest comments, so generate a valid placeholder
+    // This email is only used internally by WordPress and won't be displayed
+    const guestEmail = !isAuthenticated && !data.data.authorEmail
+      ? `${author.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'guest'}@example.com`
+      : data.data.authorEmail || viewer?.email || null;
+
+    // Ensure we have valid values
+    if (!postDatabaseId || !data.comment.parentDatabaseId) {
+      toast.error("Invalid comment data. Cannot submit reply.");
+      return;
+    }
+
+    mutaionCreateNewReplyComments({
+      variables: {
+        content: data.data.content.trim(),
+        commentOn: postDatabaseId,
+        parent: data.comment.parentDatabaseId.toString(),
+        author: author.trim() || null,
+        authorEmail: guestEmail,
+        authorUrl: null,
+      },
+      context: {
+        fetchOptions: {
+          method: "POST",
         },
-      });
+      },
+    });
   };
 
   // caculate data flat
@@ -415,8 +563,10 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
     const nodes = (data?.comments?.nodes ||
       []) as NcmazFcCommentFullFieldsFragment[];
 
-    // add new comment created
-    let dataActual = [...nodes, ...listNewCommentCreated];
+    // add new comment created - filter out any null/undefined items
+    let dataActual = [...(nodes || []), ...(listNewCommentCreated || [])].filter(
+      (item) => item != null
+    );
 
     // add new comment updated
     dataActual = dataActual.map((item) => {
@@ -449,8 +599,8 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
 
     // remove deleted comment -- cai nay phai lam sau phan add new comment
     dataActual = dataActual?.filter(
-      (item) => !deletedCommentIds.includes(item?.databaseId)
-    );
+      (item) => item && item.databaseId && !deletedCommentIds.includes(item.databaseId)
+    ) || [];
 
     const aDataHierarchical = flatListToHierarchical(dataActual, {
       idKey: "id",
@@ -458,8 +608,8 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
     }) as TCommentHasChild[];
 
     return {
-      aDataHierarchical,
-      aDataFlat: dataActual,
+      aDataHierarchical: aDataHierarchical || [],
+      aDataFlat: dataActual || [],
     };
   }, [
     data,
@@ -541,6 +691,7 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
           onCloseModalEditComment={closeModalEditComment}
           onSubmitModalEditComment={({ comment, newContent }) => {
             if (
+              !comment ||
               !comment.databaseId ||
               !isAuthenticated ||
               !newContent ||
@@ -558,9 +709,9 @@ const SingleCommentWrap: FC<SingleCommentWrapProps> = ({
               },
             });
           }}
-          comment={aDataHandled.aDataFlat.find(
-            (item) => item.databaseId === isOpenEditModalWithId
-          )}
+          comment={aDataHandled?.aDataFlat?.find(
+            (item) => item?.databaseId === isOpenEditModalWithId
+          ) || undefined}
         />
         <ModalDeleteComment
           show={!!isOpenDeleteModalWithId}
